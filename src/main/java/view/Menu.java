@@ -67,6 +67,11 @@ public class Menu {
 			}
 			
 			case 7: {
+				search(management);
+				break;
+			}
+			
+			case 8: {
 				loop = false;
 				break;
 			}
@@ -78,6 +83,24 @@ public class Menu {
 		
 	}
 	
+	private static void search(MongoManagement management) {
+		IO.print("Enter patient ID, first name or last name: ");
+		String searchID = IO.readString();
+		
+		JsonWriterSettings settings = JsonWriterSettings.builder().indent(true).build();
+		
+		 List<Document> results = management.findPatients(DATABASE, COLLECTION, searchID);
+				
+		 if (!results.isEmpty()) {
+	            StringBuilder resultText = new StringBuilder();
+	            for (Document doc : results) {
+	                resultText.append(doc.toJson(settings)).append("\n\n"); 
+	            }
+	            IO.println(resultText.toString());
+	        }
+		
+	}
+
 	private static void searchById(MongoManagement management) {
 		IO.print("Enter patient ID: ");
 		String searchID = IO.readString();
@@ -246,7 +269,8 @@ public class Menu {
 				4: Delete patient
 				5: Show all patient
 				6: Search patient by id
-				7: Exit
+				7: Search patiend
+				8: Exit
 				""");
 		
 		option = IO.readInt();
