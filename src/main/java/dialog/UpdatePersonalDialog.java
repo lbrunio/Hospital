@@ -6,8 +6,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -24,14 +22,6 @@ import javax.swing.text.MaskFormatter;
 
 import org.bson.Document;
 import org.bson.json.JsonWriterSettings;
-import org.bson.types.ObjectId;
-
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.InsertOneResult;
-
-import dao.MongoDB;
 import dao.MongoManagement;
 import frame.Menu;
 import javax.swing.JTextArea;

@@ -1,6 +1,5 @@
 package frame;
 
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -9,6 +8,7 @@ import javax.swing.border.EmptyBorder;
 
 import dialog.DeleteDialog;
 import dialog.InsertDialog;
+import dialog.SearchDialog;
 import dialog.ShowAllDialog;
 import dialog.UpdateMedicalDialog;
 import dialog.UpdatePersonalDialog;
@@ -42,7 +42,7 @@ public class Menu extends JFrame {
 	 */
 	public Menu() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 303, 291);
+		setBounds(100, 100, 303, 312);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -56,7 +56,7 @@ public class Menu extends JFrame {
 				setVisible(false);
 			}
 		});
-		insertButton.setBounds(83, 28, 107, 23);
+		insertButton.setBounds(66, 28, 134, 23);
 		contentPane.add(insertButton);
 
 		JButton deleteButton = new JButton("DELETE");
@@ -66,7 +66,7 @@ public class Menu extends JFrame {
 				
 			}
 		});
-		deleteButton.setBounds(83, 96, 107, 23);
+		deleteButton.setBounds(66, 96, 134, 23);
 		contentPane.add(deleteButton);
 
 		JButton showAllButton = new JButton("SHOW ALL");
@@ -76,7 +76,7 @@ public class Menu extends JFrame {
 				setVisible(false);
 			}
 		});
-		showAllButton.setBounds(83, 130, 107, 23);
+		showAllButton.setBounds(66, 130, 134, 23);
 		contentPane.add(showAllButton);
 
 		JButton updateButton = new JButton("UPDATE");
@@ -99,7 +99,7 @@ public class Menu extends JFrame {
                 }
 			}
 		});
-		updateButton.setBounds(83, 62, 107, 23);
+		updateButton.setBounds(66, 62, 134, 23);
 		contentPane.add(updateButton);
 
 		JButton exitButton = new JButton("EXIT");
@@ -109,7 +109,18 @@ public class Menu extends JFrame {
 				setVisible(false);
 			}
 		});
-		exitButton.setBounds(83, 190, 107, 23);
+		exitButton.setBounds(83, 239, 107, 23);
 		contentPane.add(exitButton);
+		
+		JButton searchButton = new JButton("SEARCH PATIENT");
+		searchButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SearchDialog.showWindow();
+				setVisible(false);
+				
+			}
+		});
+		searchButton.setBounds(66, 164, 134, 23);
+		contentPane.add(searchButton);
 	}
 }

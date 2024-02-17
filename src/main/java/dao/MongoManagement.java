@@ -4,19 +4,122 @@ import org.bson.Document;
 import org.bson.json.JsonWriterSettings;
 import org.bson.types.ObjectId;
 
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Sorts;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
-import com.mongodb.client.result.UpdateResult;
+import static com.mongodb.client.model.Filters.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MongoManagement {
     private MongoClient mongoClient = null;
 
     public MongoManagement() {
         mongoClient = MongoDB.getClient();
+    }
+    
+    
+    /** Metodo para mostrar buscar todos los patients de orden asc o desc
+     * 
+     * @param databaseName nombre base de datos
+     * @param collectionName nombre de la collection
+     * @param field filtrar por (nombre o apellido)
+     * @param order Asc or desc
+     * @return lista ordenada de patient por (nombre o apellido) asc o desc
+     */
+    public String showAll(String databaseName, String collectionName, String field, int order) {
+        MongoDatabase database = mongoClient.getDatabase(databaseName);
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        
+        JsonWriterSettings settings = JsonWriterSettings.builder().indent(true).build();
+
+        FindIterable<Document> documents;
+        if (order > 0) {
+            documents = collection.find().sort(Sorts.ascending(field));
+        } else {
+            documents = collection.find().sort(Sorts.descending(field));
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (Document document : documents) {
+            result.append(document.toJson(settings)).append("\n");
+        }
+
+        return result.toString();
+    }
+    
+
+    /** Metodo para encontrar buscar un patient mediante ID, nombre o apellido de orden asc o desc
+     * 
+     * @param databaseName nombre base de datos
+     * @param collectionName nombre de la collection
+     * @param patientSearch segun (nombre o apellido)
+     * @param field filtrar por (nombre o apellido)
+     * @param order Asc or desc
+     * @return lista ordenada de patient buscado por (ID, nombre o apellido) ordenado por (nombre o apellido) asc o desc
+     */
+    public List<Document> findPatients(String databaseName, String collectionName, String patientSearch, String field, int order) {
+        List<Document> patients = new ArrayList<>();
+        MongoDatabase database = mongoClient.getDatabase(databaseName);
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+
+        // Buscar pacient segun (ID, nombre o apellido) y ordenar segun el parametro de orden
+        FindIterable<Document> results = collection.find(new Document(field, patientSearch)).sort(new Document(field, order));
+        for (Document doc : results) {
+            patients.add(doc);
+        }
+
+        return patients;
+    }
+    
+    /** Metodo para encontrar buscar un patient mediante ID, nombre o apellido
+     * 
+     * @param databaseName nombre base de datos
+     * @param collectionName nombre de la collection
+     * @param patientSearch segun el texto ingresado (ID, nombre o apellido)
+     * @return patient con ID o patients con mismo nombre/apellido
+     */
+    public List<Document> findPatients(String databaseName, String collectionName, String patientSearch) {
+        MongoDatabase database = mongoClient.getDatabase(databaseName);
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+
+        List<Document> patients = new ArrayList<>();
+
+        // Intentar buscar por ID
+        try {
+//            ObjectId id = new ObjectId(patientSearch);
+//            Document patientById = collection.find(eq("_id", id)).first();
+        	
+        	Document patientById = findById(databaseName, collectionName, patientSearch);
+            if (patientById != null) {
+                patients.add(patientById);
+                return patients; // Devolver el paciente con el ID buscado
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        // Buscar pacientes por primer nombre
+        FindIterable<Document> patientsByFirstName = collection.find(regex("first_name", "^" + patientSearch + "$", "i"));
+        for (Document patient : patientsByFirstName) {
+            patients.add(patient);
+        }
+
+        // Buscar pacientes por apellido
+        FindIterable<Document> patientsByLastName = collection.find(regex("last_name", "^" + patientSearch + "$", "i"));
+        for (Document patient : patientsByLastName) {
+            if (!patients.contains(patient)) {
+                patients.add(patient);
+            }
+        }
+
+        return patients;
     }
 
     /** Metodo para encontrar un patient por su ID
@@ -38,10 +141,10 @@ public class MongoManagement {
             return null;
         }
 
-        Document filter = new Document("_id", objectId);
+        Document filter = collection.find(eq("_id", objectId)).first();
         
 
-        return collection.find(filter).first();
+        return filter;
     }
 
     /**  Metodo para actualizar un patient
